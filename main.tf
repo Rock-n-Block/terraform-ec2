@@ -19,7 +19,7 @@ provider "aws" {
 
 resource "aws_key_pair" "deployer" {
   key_name = "deployer-key"
-  public_key = var.instance_ssh_key
+  public_key = file(var.instance_ssh_key_file)
 }
 
 resource "aws_security_group" "app_server_sg" {

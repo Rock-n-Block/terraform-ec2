@@ -21,8 +21,14 @@ variable "aws_profile_name" {
   default = "default"
 }
 
-variable "instance_ssh_key" {
-  description = "Value of AWS SSH key name  to put on server"
+variable "instance_ssh_key_file" {
+  description = "Value of AWS SSH key file name  to put on server"
+  type        = string
+  default     = ""
+}
+
+variable "instance_ssh_key_priv_file" {
+  description = "Value of AWS SSH Private key file name  to run Ansible"
   type        = string
   default     = ""
 }
