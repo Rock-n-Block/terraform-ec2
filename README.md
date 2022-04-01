@@ -61,6 +61,11 @@ Apply changes to servers
 terraform apply
 ```
 
+Show current applied configuration
+```bash
+terraform show
+```
+
 Remove configuration from servers
 ```bash
 terraform destroy
