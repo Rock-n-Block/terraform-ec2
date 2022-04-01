@@ -4,6 +4,21 @@
 
 This repo contains Terraform configuration for AWS EC2 instance deployment
 
+### Supported features
+- EC2 deployment
+- Security Group creation
+- SSH Key import
+- Tag assigment on instances/security groups/block devices
+
+### Customizable parameters:
+- AWS Provider settings
+- SSH key to setup
+- EC2 AMI (currently raw AMI ID supported)
+- EC2 Storage type
+- EC2 Instance type
+- Secutiry Group exposed ports
+- Tags (Name, Org) are currently supported
+
 ## Prerequesites
 
 * Terraform
