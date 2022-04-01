@@ -11,7 +11,7 @@ This repo contains Terraform configuration for AWS EC2 instance deployment
 
 ## Variables and  configuration
 
-Copy `vars-example.tfvars` to `terraform.tfvars" or other "some-vars-file.tfvars" file
+Copy `vars-example.tfvars` to `terraform.tfvars` or other `some-vars-file.tfvars` file
 ```bash
 cp vars-example.tfvars terraform.tfvars
 ```
