@@ -23,6 +23,12 @@ This repo contains Terraform configuration for AWS EC2 instance deployment
 
 * Terraform
 * AWS CLI
+* Ansible
+
+### Note on SSH connections
+
+By default, password-protected (encrypted) private ssh keys are not supported in Terraform
+But, if you use such key and some sort of ssh agent, you can set variable `ssh_agent_support = true` to utilize ssh agent
 
 ## Variables and  configuration
 
