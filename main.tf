@@ -46,6 +46,7 @@ resource "aws_security_group" "app_server_sg" {
 
   tags = {
     Name = var.instance_name
+    canonical_name = lower(replace(var.instance_name, " ", "_"))
   }
 }
 
@@ -71,12 +72,14 @@ resource "aws_instance" "app_server" {
     tags = {
       Name = var.instance_name
       Org  = var.instance_organization
+      canonical_name = lower(replace(var.instance_name, " ", "_"))
     }
   }
 
   tags = {
     Name = var.instance_name
     Org  = var.instance_organization
+    canonical_name = lower(replace(var.instance_name, " ", "_"))
   }
 
   security_groups = [aws_security_group.app_server_sg.name]
@@ -89,11 +92,43 @@ output "instance_id" {
 }
 
 output "instance_name" {
-  description = "ID of the EC2 instance"
+  description = "Name of the EC2 instance"
   value       = aws_instance.app_server.tags["Name"]
+}
+
+output "instance_canonical_name" {
+  description = "Canonical name of the EC2 instance"
+  value       = aws_instance.app_server.tags["canonical_name"]
 }
 
 output "instance_public_ip" {
   description = "Public IP address of the EC2 instance"
   value       = aws_instance.app_server.public_ip
+}
+
+resource "local_file" "ansible_hosts" {
+    # content  = templatefile(templates)
+    content = yamlencode({
+      "all": {
+        "vars": {
+          "ansible_user": "ubuntu"
+          "ansible_ssh_common_args":"-o StrictHostKeyChecking=no"
+        },
+        "hosts": {
+          "${aws_instance.app_server.tags["canonical_name"]}": {
+            "ansible_host": "${aws_instance.app_server.public_ip}"
+          }
+        }
+      }
+    })
+    filename = "ansible-tools/hosts.yml"
+    file_permission = "0644"
+    directory_permission = "0775"
+}
+
+resource "null_resource" "ansible_provision" {
+  provisioner "local-exec" {
+    # command = "cd ansible-tools && make deps ansible_сfg=ANSIBLE_CONFIG=${abspath(path.root)}/terraformed_ansible.cfg host='${aws_instance.app_server.tags["canonical_name"]}'"
+    command = "cd ansible-tools && make deps host='${aws_instance.app_server.tags["canonical_name"]}'"
+  }
 }

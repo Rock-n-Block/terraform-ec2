@@ -1,0 +1,3 @@
+[submodule "ansible-tools"]
+	path = ansible-tools
+	url = https://github.com/Rock-n-Block/ansible-tools.git
