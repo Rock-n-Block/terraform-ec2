@@ -5,6 +5,8 @@ aws_key_credentials = {
 }
 aws_profile_name = ""                                                     # AWS Access Key (optional if  Aceess and Secret keys are  used)
 instance_ssh_key_file = "/home/user/.ssh/id_rsa.pub"    # SSH Public key to deploy on instance
+instance_ssh_key_priv_file = "/home/user/.ssh/id_rsa"   # Path to SSH Private key
+ssh_agent_support = false                                                # (Optional) Enable support for SSH Agent for connections
 instance_ami = "ami-0fb653ca2d3203ac1"                     # Instance AMI ID (default: Ubuntu 20.04 x64)
 instance_type = "t2.micro"                                              # Instance type 
 instance_name = "Terraform EC2 AppServer"               # Instance '"Name" tag 

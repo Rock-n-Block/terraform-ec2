@@ -33,6 +33,12 @@ variable "instance_ssh_key_priv_file" {
   default     = ""
 }
 
+variable "ssh_agent_support" {
+  description = "Set to True if you are using SSH Agent and have password-protected private keys"
+  type            = bool
+  default       = false
+}
+
 # TODO: fetch AMI id from some typical name
 variable "instance_ami" {
   description = "Value of Instance AMI for the EC2 instance"

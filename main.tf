@@ -107,7 +107,7 @@ output "instance_public_ip" {
 }
 
 resource "local_file" "ansible_hosts" {
-    # content  = templatefile(templates)
+  depends_on = [aws_instance.app_server]
     content = yamlencode({
       "all": {
         "vars": {
@@ -127,6 +127,22 @@ resource "local_file" "ansible_hosts" {
 }
 
 resource "null_resource" "ansible_provision" {
+    depends_on = [local_file.ansible_hosts]
+    
+    # We making ssh connection in order to wait until intance will be actually reachable
+    provisioner "remote-exec" {
+      connection {
+        type = "ssh"
+        host = aws_instance.app_server.public_ip
+        user = "ubuntu"
+        agent = var.ssh_agent_support
+        private_key = var.ssh_agent_support? "" : file(var.instance_ssh_key_priv_file) 
+      }
+
+      inline = ["echo 'connected!'"]
+    }
+  
+  # And only after SSH connection, Ansible will be executed
   provisioner "local-exec" {
     command = "cd ansible-tools && make deps host='${aws_instance.app_server.tags["canonical_name"]}'"
   }
