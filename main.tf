@@ -128,7 +128,6 @@ resource "local_file" "ansible_hosts" {
 
 resource "null_resource" "ansible_provision" {
   provisioner "local-exec" {
-    # command = "cd ansible-tools && make deps ansible_сfg=ANSIBLE_CONFIG=${abspath(path.root)}/terraformed_ansible.cfg host='${aws_instance.app_server.tags["canonical_name"]}'"
     command = "cd ansible-tools && make deps host='${aws_instance.app_server.tags["canonical_name"]}'"
   }
 }
