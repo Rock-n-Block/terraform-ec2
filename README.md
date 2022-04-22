@@ -50,6 +50,14 @@ Or you can use option `-vars-file="new-production.tfvars"` to specify vars file 
 terraform apply -var-file="testing.tfvars"
 ```
 
+## Importing existing keys
+
+If you changing state, but SSH key was already created on AWS, Terraform will create error.
+In order to make it work with already imported key, you need to refresh your local state with key that exist on AWS:
+```bash
+terraform import aws_key_pair.deployer deployer-key
+```
+
 ## Usage and commands
 
 Validate configuration
