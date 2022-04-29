@@ -75,9 +75,13 @@ variable "root_block_device" {
   type = object({
     volume_type = string
     volume_size = number
+    iops = number
+    throughput = number
   })
   default = {
     volume_type = "gp2"
     volume_size = 30
+    iops = 3000
+    throughput = 125
   }
 }

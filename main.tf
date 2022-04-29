@@ -69,6 +69,9 @@ resource "aws_instance" "app_server" {
     encrypted   = true
     volume_type = var.root_block_device.volume_type
     volume_size = var.root_block_device.volume_size
+    iops = contains(["io1", "io2", "gp3"], var.root_block_device.volume_type) ? var.root_block_device.iops : null
+    throughput = var.root_block_device.volume_type == "gp3" ? var.root_block_device.throughput : null
+
     tags = {
       Name = var.instance_name
       Org  = var.instance_organization
@@ -85,6 +88,15 @@ resource "aws_instance" "app_server" {
   security_groups = [aws_security_group.app_server_sg.name]
 }
 
+resource "aws_eip" "app_server_eip" {
+  instance = aws_instance.app_server.id
+
+  tags = {
+    Name = var.instance_name
+    Org  = var.instance_organization
+    canonical_name = lower(replace(var.instance_name, " ", "_"))
+  }
+}
 
 output "instance_id" {
   description = "ID of the EC2 instance"
@@ -101,9 +113,9 @@ output "instance_canonical_name" {
   value       = aws_instance.app_server.tags["canonical_name"]
 }
 
-output "instance_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.app_server.public_ip
+output "instance_elastic_ip" {
+  description = "Elastic IP address of the EC2 instance"
+  value       = aws_eip.app_server_eip.public_ip
 }
 
 resource "local_file" "ansible_hosts" {
@@ -116,7 +128,7 @@ resource "local_file" "ansible_hosts" {
         },
         "hosts": {
           "${aws_instance.app_server.tags["canonical_name"]}": {
-            "ansible_host": "${aws_instance.app_server.public_ip}"
+            "ansible_host": "${aws_eip.app_server_eip.public_ip}"
           }
         }
       }
@@ -133,7 +145,7 @@ resource "null_resource" "ansible_provision" {
     provisioner "remote-exec" {
       connection {
         type = "ssh"
-        host = aws_instance.app_server.public_ip
+        host = aws_eip.app_server_eip.public_ip
         user = "ubuntu"
         agent = var.ssh_agent_support
         private_key = var.ssh_agent_support? "" : file(var.instance_ssh_key_priv_file) 
