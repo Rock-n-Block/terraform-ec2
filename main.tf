@@ -18,7 +18,7 @@ provider "aws" {
 }
 
 resource "aws_key_pair" "deployer" {
-  key_name = "deployer-key"
+  key_name = "deployer-key-node-eth"
   public_key = file(var.instance_ssh_key_file)
 }
 
@@ -66,16 +66,31 @@ resource "aws_instance" "app_server" {
   key_name      = aws_key_pair.deployer.key_name
 
   root_block_device {
-    encrypted   = true
+    encrypted   = false
     volume_type = var.root_block_device.volume_type
     volume_size = var.root_block_device.volume_size
     iops = contains(["io1", "io2", "gp3"], var.root_block_device.volume_type) ? var.root_block_device.iops : null
     throughput = var.root_block_device.volume_type == "gp3" ? var.root_block_device.throughput : null
 
     tags = {
-      Name = var.instance_name
+      Name = join(" ", [var.instance_name, "Root Disk"])
       Org  = var.instance_organization
-      canonical_name = lower(replace(var.instance_name, " ", "_"))
+      canonical_name = lower(replace(join(" ", [var.instance_name, "Root Disk"]), " ", "_"))
+    }
+  }
+
+  ebs_block_device {
+    device_name = "/dev/sdg"
+    encrypted   = false
+    volume_type = var.storage_block_device.volume_type
+    volume_size = var.storage_block_device.volume_size
+    iops = contains(["io1", "io2", "gp3"], var.storage_block_device.volume_type) ? var.storage_block_device.iops : null
+    throughput = var.storage_block_device.volume_type == "gp3" ? var.storage_block_device.throughput : null
+
+    tags = {
+      Name = join(" ", [var.instance_name, "Storage"])
+      Org  = var.instance_organization
+      canonical_name = lower(replace(join(" ", [var.instance_name, "Storage"]), " ", "_"))
     }
   }
 
@@ -138,8 +153,9 @@ resource "local_file" "ansible_hosts" {
     directory_permission = "0775"
 }
 
-resource "null_resource" "ansible_provision" {
+resource "null_resource" "ansible_provision_deps" {
     depends_on = [local_file.ansible_hosts]
+    count = var.run_ansible_deps? 1 : 0
     
     # We making ssh connection in order to wait until intance will be actually reachable
     provisioner "remote-exec" {
